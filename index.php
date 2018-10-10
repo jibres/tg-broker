@@ -61,7 +61,7 @@ class broker
 		elseif($_type === 'data')
 		{
 			$temp = $_REQUEST;
-			unset($_REQUEST['API_URL']);
+			unset($temp['API_URL']);
 			return $temp;
 		}
 	}
