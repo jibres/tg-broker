@@ -37,9 +37,10 @@ class broker
 		}
 
 		$result = curl_exec($ch);
-		// $mycode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
+		$mycode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
 		echo $result;
+		curl_close($ch);
 	}
 
 	public static function my_request($_type)
@@ -49,7 +50,7 @@ class broker
 			self::debug();
 		}
 
-		if($_type === 'API_URL')
+		if($_type === 'url')
 		{
 			if(isset($_REQUEST['API_URL']))
 			{
@@ -61,7 +62,6 @@ class broker
 		{
 			$temp = $_REQUEST;
 			unset($_REQUEST['API_URL']);
-			$temp = http_build_query($temp);
 			return $temp;
 		}
 	}
