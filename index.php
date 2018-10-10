@@ -49,18 +49,19 @@ class broker
 			self::debug();
 		}
 
-		if($_type === 'url')
+		if($_type === 'API_URL')
 		{
-			if(isset($_REQUEST['url']))
+			if(isset($_REQUEST['API_URL']))
 			{
-				return $_REQUEST['url'];
+				return $_REQUEST['API_URL'];
 			}
 			return false;
 		}
 		elseif($_type === 'data')
 		{
 			$temp = $_REQUEST;
-			unset($_REQUEST['url']);
+			unset($_REQUEST['API_URL']);
+			$temp = http_build_query($temp);
 			return $temp;
 		}
 	}
