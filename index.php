@@ -4,17 +4,33 @@ class broker
 {
 	public static function run()
 	{
+		// allow to enable debug mode
+		if(isset($_REQUEST['debug_mode']))
+		{
+			ini_set('display_startup_errors', 'On');
+			ini_set('error_reporting'       , 'E_ALL | E_STRICT');
+			ini_set('track_errors'          , 'On');
+			ini_set('display_errors'        , 1);
+			error_reporting(E_ALL);
+		}
+
 		$ch = curl_init();
 		if ($ch === false)
 		{
-			self::end('curl not exist');
+			self::boboom('curl not exist');
+			return false;
 		}
 
 		// set some settings of curl
-		$apiURL = self::my_request('url');
-		if($apiURL === false)
+		$apiURL = null;
+		if(isset($_REQUEST['url']) && $_REQUEST['url'])
 		{
-			self::end('url not set');
+			$apiURL = $_REQUEST['url'];
+		}
+		else
+		{
+			self::boboom('URL is not set!');
+			return false;
 		}
 
 		curl_setopt($ch, CURLOPT_URL, $apiURL);
@@ -45,11 +61,6 @@ class broker
 
 	public static function my_request($_type)
 	{
-		if(isset($_REQUEST['debug_mode']))
-		{
-			self::debug();
-		}
-
 		if($_type === 'url')
 		{
 			if(isset($_REQUEST['API_URL']))
@@ -67,17 +78,7 @@ class broker
 	}
 
 
-	public static function debug()
-	{
-		ini_set('display_startup_errors', 'On');
-		ini_set('error_reporting'       , 'E_ALL | E_STRICT');
-		ini_set('track_errors'          , 'On');
-		ini_set('display_errors'        , 1);
-		error_reporting(E_ALL);
-	}
-
-
-	public static function end($_string = null)
+	public static function boboom($_string = null)
 	{
 		exit($_string);
 	}
