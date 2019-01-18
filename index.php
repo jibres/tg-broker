@@ -14,24 +14,69 @@ class broker
 			error_reporting(E_ALL);
 		}
 
-		$ch = curl_init();
-		if ($ch === false)
-		{
-			self::boboom('curl not exist');
-			return false;
-		}
+		$myToken  = null;
+		$myMethod = null;
+		$myData   = null;
 
 		// set some settings of curl
-		$apiURL = null;
-		if(isset($_REQUEST['url']) && $_REQUEST['url'])
+		$myToken = null;
+		if(isset($_REQUEST['token']) && $_REQUEST['token'])
 		{
-			$apiURL = $_REQUEST['url'];
+			$myToken = $_REQUEST['token'];
 		}
 		else
 		{
-			self::boboom('URL is not set!');
-			return false;
+			self::boboom('Token is not set!');
 		}
+		$myMethod = null;
+		if(isset($_REQUEST['method']) && $_REQUEST['method'])
+		{
+			$myMethod = $_REQUEST['method'];
+		}
+		else
+		{
+			self::boboom('Method is not set!');
+		}
+		$myData = null;
+		if(isset($_REQUEST['data']) && $_REQUEST['data'])
+		{
+			$myData = $_REQUEST['data'];
+		}
+
+
+		var_dump($_SERVER);
+
+		self::send($myToken, $myMethod, $myData);
+	}
+
+
+
+	public static function send($_token, $_method = null, $_data = null)
+	{
+		// check method
+		if(!$_method)
+		{
+			self::boboom('Method is not set!');
+		}
+		// check token
+		if(strlen($_token) < 20)
+		{
+			self::boboom('Api key is not correct!');
+		}
+		// check need json
+		$isJson = null;
+		if($_method === 'answerInlineQuery')
+		{
+			$isJson = true;
+		}
+		$ch = curl_init();
+		if ($ch === false)
+		{
+			self::boboom('Curl failed to initialize');
+		}
+
+		// set some settings of curl
+		$apiURL = "https://api.telegram.org/bot". $_token. "/$_method";
 
 		curl_setopt($ch, CURLOPT_URL, $apiURL);
 		// turn on some setting
@@ -43,21 +88,46 @@ class broker
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		// timeout setting
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 7);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 7);
 
-		if(!empty(self::my_request('data')))
+		if (!empty($_data))
 		{
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-			curl_setopt($ch, CURLOPT_POSTFIELDS, self::my_request('data'));
+			if($isJson)
+			{
+				$dataJson       = json_encode($_data);
+				$dataJsonHeader =
+				[
+					'Content-Type: application/json',
+					'Content-Length: ' . strlen($dataJson)
+				];
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $dataJson);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $dataJsonHeader);
+			}
+			else
+			{
+				curl_setopt( $ch, CURLOPT_POSTFIELDS, $_data);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+			}
 		}
-
 		$result = curl_exec($ch);
 		$mycode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		echo $result;
+		// error on result
+		if ($result === false)
+		{
+			self::boboom(curl_error($ch). ':'. curl_errno($ch));
+		}
+		// empty result
+		if (empty($result) || is_null($result))
+		{
+			self::boboom('Empty server response');
+		}
 		curl_close($ch);
+
+		// show result with jsonBoboom
+		self::jsonBoboom($result);
 	}
+
 
 	public static function my_request($_type)
 	{
@@ -80,7 +150,18 @@ class broker
 
 	public static function boboom($_string = null)
 	{
+		// change header
 		exit($_string);
+	}
+
+	public static function jsonBoboom($_result = null)
+	{
+		if(substr($_result, 0,1) === "{")
+		{
+			$_result = json_decode($_result, true);
+		}
+		echo $_result;
+		self::boboom();
 	}
 }
 
