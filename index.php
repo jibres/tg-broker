@@ -20,13 +20,14 @@ class broker
 
 		// set some settings of curl
 		$myToken = null;
-		if(isset($_REQUEST['token']) && $_REQUEST['token'])
+		if(isset($_SERVER['HTTP_X_TG_TOKEN']) && $_SERVER['HTTP_X_TG_TOKEN'])
 		{
-			$myToken = $_REQUEST['token'];
+			$myToken = $_SERVER['HTTP_X_TG_TOKEN'];
 		}
 		else
 		{
-			self::boboom('Token is not set!');
+			// use default bot
+			$myToken = '215239661:AAGPZz_25uqq0pYkBhTSI1pblyYqckfsCHg';
 		}
 		$myMethod = null;
 		if(isset($_REQUEST['method']) && $_REQUEST['method'])
@@ -43,8 +44,6 @@ class broker
 			$myData = $_REQUEST['data'];
 		}
 
-
-		var_dump($_SERVER);
 
 		self::send($myToken, $myMethod, $myData);
 	}
