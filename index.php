@@ -155,9 +155,14 @@ class broker
 
 	public static function jsonBoboom($_result = null)
 	{
-		if(substr($_result, 0,1) === "{")
+		if(is_array($_result))
 		{
-			$_result = json_decode($_result, true);
+			$_result = json_encode($_result, JSON_UNESCAPED_UNICODE);
+		}
+
+		if(substr($_result, 0, 1) === "{")
+		{
+			@header("Content-Type: application/json; charset=utf-8");
 		}
 		echo $_result;
 		self::boboom();
