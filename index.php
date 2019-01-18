@@ -38,12 +38,7 @@ class broker
 		{
 			self::boboom('Method is not set!');
 		}
-		$myData = null;
-		if(isset($_REQUEST['data']) && $_REQUEST['data'])
-		{
-			$myData = $_REQUEST['data'];
-		}
-
+		$myData = self::my_data();
 
 		self::send($myToken, $myMethod, $myData);
 	}
@@ -128,22 +123,14 @@ class broker
 	}
 
 
-	public static function my_request($_type)
+	public static function my_data()
 	{
-		if($_type === 'url')
-		{
-			if(isset($_REQUEST['API_URL']))
-			{
-				return $_REQUEST['API_URL'];
-			}
-			return false;
-		}
-		elseif($_type === 'data')
-		{
-			$temp = $_REQUEST;
-			unset($temp['API_URL']);
-			return $temp;
-		}
+		// get all
+		$allData = $_REQUEST;
+		// remove method
+		unset($allData['method']);
+		// send all
+		return $allData;
 	}
 
 
