@@ -11,7 +11,7 @@ class broker
 			self::boboom('Token file not found');
 		}
 
-		if(isset($_REQUEST['broker_token']) && $_REQUEST['broker_token'] == trim(file_get_contents($token)))
+		if(isset($_SERVER['HTTP_BROKER_TOKEN']) && $_SERVER['HTTP_BROKER_TOKEN'] == trim(file_get_contents($token)))
 		{
 			// it's ok
 		}
