@@ -4,6 +4,22 @@ class broker
 {
 	public static function run()
 	{
+		$token = __DIR__.'/token.conf';
+
+		if(!is_file($token))
+		{
+			self::boboom('Token file not found');
+		}
+
+		if(isset($_REQUEST['broker_token']) && $_REQUEST['broker_token'] == trim(file_get_contents($token)))
+		{
+			// it's ok
+		}
+		else
+		{
+			self::boboom('Hi!');
+		}
+
 		// allow to enable debug mode
 		if(isset($_REQUEST['debug_mode']))
 		{
